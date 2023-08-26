@@ -2,7 +2,7 @@
  * @Author: 快出来了哦
  * @Date: 2023-08-22 14:24:37
  * @LastEditors: 快出来了哦
- * @LastEditTime: 2023-08-22 17:05:52
+ * @LastEditTime: 2023-08-24 15:28:48
  * @FilePath: /ThreadPool/code/Pool/threadpool.cpp
  * @Description: 
  */
@@ -93,6 +93,7 @@ Result ThreadPool::submitTask(std::shared_ptr<Task> sp)
         threads_[threadId]->start();
         curThreadSize_++;
         idleThreadSize_++;
+		std::cout<<"create new thread"<<std::endl;
     }
     return Result(sp);
 }

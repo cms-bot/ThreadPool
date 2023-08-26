@@ -2,7 +2,7 @@
  * @Author: 快出来了哦
  * @Date: 2023-08-22 13:51:34
  * @LastEditors: 快出来了哦
- * @LastEditTime: 2023-08-22 15:12:58
+ * @LastEditTime: 2023-08-24 15:57:27
  * @FilePath: /ThreadPool/code/Pool/threadpool.h
  * @Description: 
  */
@@ -28,6 +28,7 @@ public:
     Any& operator = (Any&&) = default;
     template <class T>
     Any(T data):base_(std::make_unique<Drived<T>>(data)){}
+	~Any() = default;
     template <class T_>
     T_ cast_()
     {
@@ -35,7 +36,7 @@ public:
         if(pt == nullptr)
         {
             throw "type unmatch";
-        }
+        }     
         return pt->data_;
     }
 private:
@@ -58,22 +59,25 @@ private:
 class Semaphore
 {
 public:
-    Semaphore(int limit = 0):resLimit_(limit){}
-    ~Semaphore() = default;
+    Semaphore(int limit = 0):resLimit_(limit),exit_(false){}
+    ~Semaphore(){exit_ = true;}
     void wait()
     {
+		if(exit_)return;
         std::unique_lock<std::mutex> lock(resmutex_);
         rescv_.wait(lock,[&](){return resLimit_ > 0;});
         resLimit_--;
     }
     void post()
     {
+		 if(exit_)return;
          std::unique_lock<std::mutex> lock(resmutex_);
          resLimit_++;
          rescv_.notify_all();
     }
 private:
     int resLimit_;//资源数量
+	std::atomic_bool exit_;
     std::mutex resmutex_;//互斥锁
     std::condition_variable rescv_;//条件变量
 };
